@@ -18,9 +18,24 @@
 
     <link rel="stylesheet" href="css/normalize.css"/>
     <link rel="stylesheet" href="css/preloader.css"/>
+    <style>
+        .buttons {
+            position: absolute;
+            z-index: 99999;
+            top: 10px;
+            left: 10px;
+        }
+        .button {
+            margin: 0 5px;
+        }
+    </style>
 </head>
 <body>
 
+<div class="buttons">
+    <button class="button fullscreen" onclick="toggleFullScreen();">Fullscreen</button>
+    <button class="button reload" onclick="window.location.reload();">Reload</button>
+</div>
 
 <div class="photo-booth" id="photo-booth">
     <div class="photo-booth__inner-wrapper photo-booth__inner-wrapper--preloader">
@@ -38,10 +53,9 @@
     </div>
 </div>
 
-
 <script src="js/jquery-2.2.4.min.js"></script>
 <script src="js/common.js"></script>
-<script src="js/Pac12PhotoBooth.js"></script>
+<script src="js/Pac12PhotoBooth_61aa577dd92e28717c9e.js"></script>
 
 <script type="text/javascript">
     var photoBoothClass = 'Pac12PhotoBooth';
@@ -51,6 +65,27 @@
         "apiEndpoint": "",
         "apiKey": ""
     });
+
+    var toggleFullScreen = function () {
+        if ((document.fullScreenElement && document.fullScreenElement !== null) ||
+                (!document.mozFullScreen && !document.webkitIsFullScreen)) {
+            if (document.documentElement.requestFullScreen) {
+                document.documentElement.requestFullScreen();
+            } else if (document.documentElement.mozRequestFullScreen) {
+                document.documentElement.mozRequestFullScreen();
+            } else if (document.documentElement.webkitRequestFullScreen) {
+                document.documentElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+            }
+        } else {
+            if (document.cancelFullScreen) {
+                document.cancelFullScreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitCancelFullScreen) {
+                document.webkitCancelFullScreen();
+            }
+        }
+    }
 </script>
 
 </body>

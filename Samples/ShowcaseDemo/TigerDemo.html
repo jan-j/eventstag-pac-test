@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Tiger Mask</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="css/TrackDetect.css" type="text/css" media="all"/>
+</head>
+<body>
+<div id="cinema">
+    <div id="outer-container">
+        <div id="inner-container">
+            <canvas id="canvas" style="display: block;"></canvas>
+        </div>
+    </div>
+
+    <div id="right-container">
+
+        <div id="optionbox">
+            <br>
+            <div class="toolbox">
+                <select id="myList" onchange="testConfig()">
+                    <option>Facial Features Tracker - High.cfg</option>
+                    <option>Facial Features Tracker - Low.cfg</option>
+                    <option>Head Tracker.cfg</option>
+                </select>
+            </div>
+            <br>
+        </div>
+
+        <div id="data" style="padding: 10px">
+            <p class="whitetext"><b>RESULTS:</b></p>
+            <p class="whitetext">FRAME RATE: <b id="boldStuff">29.3fps</b></p>
+            <p class="vanishing">TRANSLATION: <b id="myTrans">----</b></p>
+            <p class="vanishing">ROTATION: <b id="myRot">----</b></p>
+        </div>
+    </div>
+</div>
+
+<script type='text/javascript'>
+    var Module = {
+        onRuntimeInitialized: function () {
+            onModuleInitialized();
+        }
+    };
+
+    //VARS
+    //**********
+    var fpsOut = document.getElementById('boldStuff');
+    var transOutput = document.getElementById('myTrans');
+    var rotOutput = document.getElementById('myRot');
+    var canvas = document.getElementById('canvas');
+
+    var mWidth = 0;
+    var mHeight = 0;
+    var lastUpdate = 0;
+    var fpsFilter = 50;
+
+    var canCon = canvas.getContext('2d');
+    var startTracking = false;
+    var thisFrameFPS = 10;
+
+    //FPS - Refreshes FPS display every 1000ms
+    setInterval(function () {
+        fpsOut.innerHTML = fps.toFixed(1) + "fps";
+    }, 10);
+
+    function testConfig() {
+        var mylist = document.getElementById("myList");
+        var cfgPath = "../../lib/" + mylist.options[mylist.selectedIndex].text;
+        m_Tracker.setTrackerConfiguration(cfgPath);
+    }
+
+    var trackerStates = ["TRACK_STAT_OFF", "TRACK_STAT_OK", "TRACK_STAT_RECOVERING", "TRACK_STAT_INIT"];
+    var trackerReturnState = trackerStates[0];
+
+    var ppixels;
+    var pixels;
+
+    //initializes, updates and renders 3d models
+    function draw3DModel() {
+        var wireframeVertices;
+
+        if (!meshCreated) {
+            faceModelGeometry = new THREE.Geometry();
+
+            var triangles = TfaceData.getFaceModelTriangles();
+            for (i = 0; i < TfaceData.faceModelTriangleCount * 3; i += 3) {
+                var testFace = new THREE.Face3(triangles.get(i), triangles.get(i + 1), triangles.get(i + 2));
+                faceModelGeometry.faces.push(testFace);
+            }
+
+            wireframeVertices = TfaceData.getFaceModelVertices();
+            for (i = 0; i < TfaceData.faceModelVertexCount * 3; i += 3) {
+                var v = new THREE.Vector3(-wireframeVertices.get(i), wireframeVertices.get(i + 1), wireframeVertices.get(i + 2));
+                faceModelGeometry.vertices.push(v);
+
+            }
+            wireframeVertices.delete();
+            faceModelGeometry.faceVertexUvs = tempUV;
+            faceModelGeometry.uvsNeedUpdate = true;
+
+            faceModelMesh = new THREE.Mesh(faceModelGeometry, materialTiger);
+
+            faceModelMesh.position.set(TfaceData.getFaceTranslation()[0], TfaceData.getFaceTranslation()[1], -TfaceData.getFaceTranslation()[2]);
+            faceModelMesh.rotation.set(TfaceData.getFaceRotation()[0], -TfaceData.getFaceRotation()[1], -TfaceData.getFaceRotation()[2]);
+            scene.add(faceModelMesh);
+            renderer.render(scene, v_camera);
+
+            meshCreated = true;
+        } else {
+            wireframeVertices = TfaceData.getFaceModelVertices();
+            for (i = 0; i < TfaceData.faceModelVertexCount; i++) {
+                faceModelMesh.geometry.vertices[i].x = -wireframeVertices.get(3 * i);
+                faceModelMesh.geometry.vertices[i].y = wireframeVertices.get(3 * i + 1);
+                faceModelMesh.geometry.vertices[i].z = wireframeVertices.get(3 * i + 2);
+            }
+
+            faceModelMesh.geometry.verticesNeedUpdate = true;
+            wireframeVertices.delete();
+
+            faceModelMesh.position.set(TfaceData.getFaceTranslation()[0], TfaceData.getFaceTranslation()[1], -TfaceData.getFaceTranslation()[2]);
+            faceModelMesh.rotation.set(TfaceData.getFaceRotation()[0], -TfaceData.getFaceRotation()[1], -TfaceData.getFaceRotation()[2]);
+        }
+        renderer.render(scene, v_camera);
+    }
+
+    var objLoaded = false;
+    var tempUV;
+    var textureTiger;
+    var materialTiger;
+    var tigerMaterialLoaded = false;
+
+    //reads the .obj file and creates meshes, loads the textures
+    function initializeTiger() {
+        if (!objLoaded) {
+            var mtlTestLoader = new THREE.OBJMTLLoader();
+
+            mtlTestLoader.addEventListener('load', function (event) {
+                var object = event.content;
+
+                object.traverse(function (child) {
+                    if (child instanceof THREE.Mesh) {
+                        tempUV = child.geometry.faceVertexUvs;
+                        objLoaded = true;
+
+                        textureTiger = THREE.ImageUtils.loadTexture('tiger_texture.png', undefined, function (tex1) {
+                            materialTiger = new THREE.MeshBasicMaterial({map: tex1, transparent: true});
+                            tigerMaterialLoaded = true;
+                        });
+                    }
+                })
+            });
+
+            mtlTestLoader.load("texture_map.obj");
+        }
+    }
+
+    //initializes the 3d scene and creates the canvas used in rendering
+    function initialize3dScene() {
+        //var FOV = Math.atan(mHeight/mWidth/TfaceData.cameraFocus)/3.14*360;
+        var container = document.getElementById('inner-container');
+        scene = new THREE.Scene();
+        v_camera = new THREE.PerspectiveCamera(36.869, mWidth / mHeight, 0.001, 30);
+        //v_camera = new THREE.PerspectiveCamera( FOV, mWidth/mHeight, 0.001, 30 );
+        v_camera.lookAt(new THREE.Vector3(0, 0, -1));
+        renderer = new THREE.WebGLRenderer({alpha: true});
+        renderer.setSize(mWidth, mHeight);
+        container.appendChild(renderer.domElement);
+
+        initializeTiger();
+    }
+
+    var fps = 30;
+    var now;
+    var then = Date.now();
+    var interval = 1000 / fps;
+    var delta;
+
+    var meshCreated = false;
+    var faceModelGeometry;
+    var faceModelMesh;
+
+    /*
+     *Method that is called on every frame via requestAnimationFrame mechanism.
+     *Draws camera image on the canvas, takes the pixel data, sends them to the tracker and finally, depending on the result, draws the results.
+     *Rudimentary timing is implemented to be activated on button click and it also checks for duplicate frames.
+     */
+    function processFrame() {
+        window.requestAnimationFrame(processFrame);
+
+        now = Date.now();
+        delta = now - then;
+
+        //Limit frame rate according to the fps variable
+        if (delta > interval) {
+            then = now - (delta % interval);
+
+            canvas.width = mWidth;
+            //Draws an image from cam on the canvas
+            canCon.drawImage(video, 0, 0, mWidth, mHeight);
+
+            //Access pixel data
+            imageData = canCon.getImageData(0, 0, mWidth, mHeight).data;
+
+            //Save pixel data to preallocated buffer
+            for (i = 0; i < imageData.length; i += 1) {
+                pixels[i] = imageData[i];
+            }
+
+            if (startTracking === true) {
+                trackerReturnState = m_Tracker.track(
+                        mWidth, mHeight, ppixels, TfaceData,
+                        Module.VisageTrackerImageFormat.VISAGE_FRAMEGRABBER_FMT_RGBA.value,
+                        Module.VisageTrackerOrigin.VISAGE_FRAMEGRABBER_ORIGIN_TL.value,
+                        0,
+                        -1
+                );
+            }
+            //Draw based upon data if tracker status is OK and respective controls
+            if (startTracking === true && trackerReturnState === Module.VisageTrackerStatus.TRACK_STAT_OK.value) {
+                //Draws the selected 3d face model
+                if (tigerMaterialLoaded) {
+                    draw3DModel();
+                }
+
+                // Render translation and rotation
+                transOutput.innerHTML = "[" + TfaceData.getFaceTranslation()[0].toFixed(2) + "," + TfaceData.getFaceTranslation()[1].toFixed(2) + "," + TfaceData.getFaceTranslation()[2].toFixed(2) + "]";
+                rotOutput.innerHTML = "[" + TfaceData.getFaceRotation()[0].toFixed(2) + "," + TfaceData.getFaceRotation()[1].toFixed(2) + "," + TfaceData.getFaceRotation()[2].toFixed(2) + "]";
+            } else if ( // Hide mask when tracker status not ok or recovering
+                    startTracking === true
+                    && (trackerReturnState !== Module.VisageTrackerStatus.TRACK_STAT_OK.value
+                    || trackerReturnState !== Module.VisageTrackerStatus.TRACK_STAT_RECOVERING.value)
+            ) {
+                renderer.clear();
+            }
+
+
+            //Calculate FPS
+            thisFrameFPS = 1000 / ((now = new Date) - lastUpdate);
+            fps += (thisFrameFPS - fps) / fpsFilter;
+            lastUpdate = now;
+        }
+    }
+
+    var m_Tracker;
+    var TfaceData;
+    var imageData;
+
+    var video = document.createElement('video');
+
+    var scene;
+    var v_camera;
+    var renderer;
+
+    function onModuleInitialized() {
+        if (mWidth === 0) {
+            setTimeout(onModuleInitialized, 100);
+            return
+        }
+
+        ppixels = Module._malloc(mWidth * mHeight * 4);
+        pixels = new Uint8ClampedArray(Module.HEAPU8.buffer, ppixels, mWidth * mHeight * 4);
+
+        //set up tracker and licensing, valid license needs to be provided
+        Module.initializeLicenseManager("../185-303-999-897-664-654-612-962-889-212-669.vlc");
+        m_Tracker = new Module.VisageTracker("../../lib/Facial Features Tracker - High.cfg");
+        TfaceData = new Module.FaceData();
+
+        //Use request animation frame mechanism - slower but with smoother animation
+        processFrame();
+    }
+
+    //Is triggered when cam stream is successfully fetched
+    //NOTE: Can be buggy, try to increase the value from 1000ms to some higher value in that case
+    function startStream(stream) {
+        video.addEventListener('canplay', function DoStuff() {
+            video.removeEventListener('canplay', DoStuff, true);
+            setTimeout(function () {
+                video.play();
+
+                canvas.width = 1280;
+                canvas.height = 720;
+
+                mWidth = canvas.width;
+                mHeight = canvas.height;
+
+                initialize3dScene();
+            }, 1000);
+        }, true);
+
+        var domURL = window.URL || window.webkitURL;
+        video.src = domURL ? domURL.createObjectURL(stream) : stream;
+
+        video.play();
+    }
+
+    navigator.getUserMedia({
+        video: {
+            width: 1280,
+            height: 720
+        },
+        audio: false
+    }, startStream, function () {});
+
+    video.loop = video.muted = true;
+    video.autoplay = true;
+    video.load();
+
+
+</script>
+
+<script src="../../lib/visageSDK.js"></script>
+<script src="../../lib/three.min.js"></script>
+
+<script src="MTLLoader.js"></script>
+<script src="OBJMTLLoader.js"></script>
+
+</body>
+</html> 

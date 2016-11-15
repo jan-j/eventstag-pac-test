@@ -60,10 +60,16 @@
 <script type="text/javascript">
     var photoBoothClass = 'Pac12PhotoBooth';
     var photoBoothContainer = document.getElementById('photo-booth');
+    var assetsPublicPath = 'js/VisageSDK/';
     var photoBooth = new window[photoBoothClass](photoBoothContainer, {
-        "slug": "pac-12-photo-booth-test",
-        "apiEndpoint": "",
-        "apiKey": ""
+        slug: 'pac-12-photo-booth-test',
+        faceMaskOperationConfig: {
+            visageSDKConfig: {
+                assetsPublicPath: assetsPublicPath
+            },
+            maskPath: assetsPublicPath + 'masks/pac12',
+            trackerConfigPath: assetsPublicPath + 'configs/HeadTracker.cfg'
+        }
     });
 
     var toggleFullScreen = function () {

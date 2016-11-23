@@ -18,6 +18,7 @@
 
     <link rel="stylesheet" href="css/normalize.css"/>
     <link rel="stylesheet" href="css/preloader.css"/>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <style>
         .buttons {
             position: absolute;
@@ -52,7 +53,11 @@
         </div>
     </div>
 </div>
-
+<script>
+    var Routing = {
+        generate: function () {}
+    };
+</script>
 <script src="js/jquery-2.2.4.min.js"></script>
 <script src="js/common.js"></script>
 <script src="js/Pac12PhotoBooth.js"></script>
@@ -62,12 +67,13 @@
     var photoBoothContainer = document.getElementById('photo-booth');
     var assetsPublicPath = 'js/VisageSDK/';
     var photoBooth = new window[photoBoothClass](photoBoothContainer, {
+        baseUrl: '/eventstag-pac-test',
         slug: 'pac-12-photo-booth-test',
         faceMaskOperationConfig: {
             visageSDKConfig: {
                 assetsPublicPath: assetsPublicPath
             },
-            maskPath: assetsPublicPath + 'masks/pac12',
+            textureMapPath: assetsPublicPath + 'texture-map.obj',
             trackerConfigPath: assetsPublicPath + 'configs/HeadTracker.cfg'
         }
     });

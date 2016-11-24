@@ -63,6 +63,9 @@
 <script src="js/Pac12PhotoBooth.js"></script>
 
 <script type="text/javascript">
+    // suppress alerts
+    window.alert = function () {};
+
     var photoBoothClass = 'Pac12PhotoBooth';
     var photoBoothContainer = document.getElementById('photo-booth');
     var assetsPublicPath = 'js/VisageSDK/';

@@ -1,0 +1,174 @@
+html,
+body {
+  overflow: hidden;
+}
+* {
+  cursor: none;
+}
+.flashes {
+  position: fixed;
+  right: 0;
+  top: 50px;
+  z-index: 10000;
+}
+.flashes > * {
+  background-color: #222;
+  padding: 5px;
+  color: #fff;
+}
+.flashes .error {
+  background-color: #ff0000;
+}
+.photo-booth {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  color: #000;
+  font-size: 2vw;
+}
+.photo-booth__inner-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.photo-booth__welcome-message {
+  text-align: center;
+  font-size: 300%;
+}
+.photo-booth__steps {
+  width: 100%;
+  height: 100%;
+}
+.photo-booth__controls-message {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 30;
+  font-size: 20px;
+}
+.photo-booth__error-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+          justify-content: center;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+          flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  z-index: 30;
+}
+.photo-booth__error-header {
+  font-size: 70px;
+}
+.photo-booth__error-message {
+  font-size: 50px;
+}
+.photo-booth__top-controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 40;
+  font-size: 20px;
+}
+.photo-booth__top-controls-button {
+  width: 70px;
+  height: 70px;
+  padding: 10px;
+  font-size: 50px;
+  line-height: 100%;
+  background-color: transparent;
+  color: transparent;
+}
+.photo-booth__top-controls-button--left {
+  float: left;
+}
+.photo-booth__top-controls-button--right {
+  float: right;
+}
+.photo-booth-step {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: none;
+  background-position: center center;
+  background-repeat: no-repeat;
+  /* Timeout overlay */
+}
+.photo-booth-step--shown {
+  display: block;
+}
+.photo-booth-step__centered-outer-wrapper {
+  width: 100%;
+  height: 100%;
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+          justify-content: center;
+}
+.photo-booth-step__text {
+  text-align: center;
+  margin: 5vh 0;
+}
+.photo-booth-step__image {
+  display: block;
+  margin: 5vh auto;
+}
+.photo-booth-step__buttons {
+  text-align: center;
+}
+.photo-booth-step__button {
+  color: #000;
+  margin: 5vh 0.5vw;
+  padding: 1vw;
+  background-color: #eee;
+}
+.photo-booth-step__loader {
+  text-align: center;
+}
+.photo-booth-step__timeout-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+          justify-content: center;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+          flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  z-index: 10;
+}
+.photo-booth-step__timeout-message {
+  font-size: 50px;
+}
+.photo-booth-step__timeout-countdown {
+  display: block;
+  font-size: 120px;
+  margin-top: 10px;
+}
+.photo-booth-step-loader--preloader {
+  background-color: #fff;
+  color: #000;
+  display: block;
+}
+.photo-booth-step-loader__loader {
+  font-size: 20vh;
+}

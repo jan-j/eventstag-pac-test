@@ -1,8 +1,12 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
-<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
-<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
-<!--[if IE 9]>    <html class="no-js lt-ie10" lang="en"> <![endif]-->
+<!--[if lt IE 7]>
+<html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>
+<html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>
+<html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if IE 9]>
+<html class="no-js lt-ie10" lang="en"> <![endif]-->
 <!--[if gt IE 9]><!-->
 <html prefix="og: http://ogp.me/ns#" class="no-js " lang="en" xml:lang="en">
 <!--<![endif]-->
@@ -12,13 +16,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
     <title>Photo Booth</title>
 
-    <link rel="stylesheet" href="//eventstag.localhost/css/photo-booth/preloader.css" />
-
+    <link rel="stylesheet" href="css/normalize.css"/>
+    <link rel="stylesheet" href="css/preloader.css"/>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <style>
+        .buttons {
+            position: absolute;
+            z-index: 99999;
+            top: 10px;
+            left: 10px;
+        }
+        .button {
+            margin: 0 5px;
+        }
+    </style>
 </head>
 <body>
 
-
-
+<div class="buttons">
+    <button class="button fullscreen" onclick="toggleFullScreen();">Fullscreen</button>
+    <button class="button reload" onclick="window.location.reload();">Reload</button>
+</div>
 
 <div class="photo-booth" id="photo-booth">
     <div class="photo-booth__inner-wrapper photo-booth__inner-wrapper--preloader">
@@ -35,18 +53,55 @@
         </div>
     </div>
 </div>
-
-
-<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-<script src="photo-booth.js"></script>
+<script>
+    var Routing = {
+        generate: function () {}
+    };
+</script>
+<script src="js/jquery-2.2.4.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/Pac12PhotoBooth.js"></script>
 
 <script type="text/javascript">
+    // suppress alerts
+    window.alert = function () {};
+
+    var photoBoothClass = 'Pac12PhotoBooth';
     var photoBoothContainer = document.getElementById('photo-booth');
-    var photoBooth = PhotoBoothFactory.create('clients/Pac12/Pac12PhotoBooth', photoBoothContainer, {"slug":"pac-12-photo-booth-test","apiEndpoint":"http:\/\/localhost\/app_dev.php\/photo-booth\/single-image-upload\/pac-12-photo-booth-test","apiKey":"$2y$10$HIdjFcfYeBKM6aVfXkIrx.QSN6l7OKTyxtmndwYsii.P.Y9IiEbIS"});
+    var assetsPublicPath = 'js/VisageSDK/';
+    var photoBooth = new window[photoBoothClass](photoBoothContainer, {
+        baseUrl: '/eventstag-pac-test',
+        slug: 'pac-12-photo-booth-test',
+        faceMaskOperationConfig: {
+            visageSDKConfig: {
+                assetsPublicPath: assetsPublicPath
+            },
+            textureMapPath: assetsPublicPath + 'texture-map.obj',
+            trackerConfigPath: assetsPublicPath + 'configs/HeadTracker.cfg'
+        }
+    });
+
+    var toggleFullScreen = function () {
+        if ((document.fullScreenElement && document.fullScreenElement !== null) ||
+                (!document.mozFullScreen && !document.webkitIsFullScreen)) {
+            if (document.documentElement.requestFullScreen) {
+                document.documentElement.requestFullScreen();
+            } else if (document.documentElement.mozRequestFullScreen) {
+                document.documentElement.mozRequestFullScreen();
+            } else if (document.documentElement.webkitRequestFullScreen) {
+                document.documentElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+            }
+        } else {
+            if (document.cancelFullScreen) {
+                document.cancelFullScreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitCancelFullScreen) {
+                document.webkitCancelFullScreen();
+            }
+        }
+    }
 </script>
-
-
-
 
 </body>
 </html>

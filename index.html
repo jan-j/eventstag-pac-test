@@ -29,6 +29,20 @@
         .button {
             margin: 0 5px;
         }
+        #log {
+            position: absolute;
+            z-index: 99999;
+            top: 100px;
+            left: 0px;
+
+            width: 90%;
+            height: 500px;
+            margin: 0 5%;
+            background-color: #eee;
+            border: 1px solid black;
+
+            overflow-y: scroll;
+        }
     </style>
 </head>
 <body>
@@ -37,6 +51,8 @@
     <button class="button fullscreen" onclick="toggleFullScreen();">Fullscreen</button>
     <button class="button reload" onclick="window.location.reload();">Reload</button>
 </div>
+
+<textarea id="log" rows="10"></textarea>
 
 <div class="photo-booth" id="photo-booth">
     <div class="photo-booth__inner-wrapper photo-booth__inner-wrapper--preloader">
@@ -63,23 +79,52 @@
 <script src="js/Pac12PhotoBooth.js"></script>
 
 <script type="text/javascript">
+    var logTextarea = document.getElementById('log');
+
     // suppress alerts
     window.alert = function () {};
 
-    var photoBoothClass = 'Pac12PhotoBooth';
-    var photoBoothContainer = document.getElementById('photo-booth');
-    var assetsPublicPath = 'js/VisageSDK/';
-    var photoBooth = new window[photoBoothClass](photoBoothContainer, {
-        baseUrl: '/eventstag-pac-test',
-        slug: 'pac-12-photo-booth-test',
-        faceMaskOperationConfig: {
-            visageSDKConfig: {
-                assetsPublicPath: assetsPublicPath
-            },
-            textureMapPath: assetsPublicPath + 'texture-map.obj',
-            trackerConfigPath: assetsPublicPath + 'configs/HeadTracker.cfg'
-        }
-    });
+    window.log = function () {
+        var appendLine = function (string) {
+            if (typeof string === 'object') {
+                string = JSON.stringify(string);
+            }
+
+            logTextarea.value += (logTextarea.value ? "\n" : '') + '@@@@' + string;
+        };
+
+        var args = Array.prototype.slice.call(arguments);
+
+        args.forEach(function (s) {
+            appendLine(s);
+        });
+    };
+
+    console.log = console.warn = console.debug = console.error = log;
+
+    window.onerror = function(message, url, lineNumber) {
+        log(message, url, lineNumber);
+        return true;
+    };
+
+    try {
+        var photoBoothClass = 'Pac12PhotoBooth';
+        var photoBoothContainer = document.getElementById('photo-booth');
+        var assetsPublicPath = 'js/VisageSDK/';
+        var photoBooth = new window[photoBoothClass](photoBoothContainer, {
+            baseUrl: '/eventstag-pac-test',
+            slug: 'pac-12-photo-booth-test',
+            faceMaskOperationConfig: {
+                visageSDKConfig: {
+                    assetsPublicPath: assetsPublicPath
+                },
+                textureMapPath: assetsPublicPath + 'texture-map.obj',
+                trackerConfigPath: assetsPublicPath + 'configs/HeadTracker.cfg'
+            }
+        });
+    } catch (e) {
+        log(e.message, e.stack);
+    }
 
     var toggleFullScreen = function () {
         if ((document.fullScreenElement && document.fullScreenElement !== null) ||

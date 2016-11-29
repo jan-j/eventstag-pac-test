@@ -43,6 +43,9 @@
 
             overflow-y: scroll;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -50,6 +53,7 @@
 <div class="buttons">
     <button class="button fullscreen" onclick="toggleFullScreen();">Fullscreen</button>
     <button class="button reload" onclick="window.location.reload();">Reload</button>
+    <button class="button logToggle" onclick="logToggle();">Log</button>
 </div>
 
 <textarea id="log" rows="10"></textarea>
@@ -80,6 +84,10 @@
 
 <script type="text/javascript">
     var logTextarea = document.getElementById('log');
+
+    var logToggle = function () {
+        logTextarea.classList.toggle('hidden');
+    };
 
     // suppress alerts
     window.alert = function () {};

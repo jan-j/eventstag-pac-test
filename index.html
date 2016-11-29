@@ -116,7 +116,10 @@
             slug: 'pac-12-photo-booth-test',
             faceMaskOperationConfig: {
                 visageSDKConfig: {
-                    assetsPublicPath: assetsPublicPath
+                    assetsPublicPath: assetsPublicPath,
+                    extra:{
+                        TOTAL_MEMORY: 16777216
+                    }
                 },
                 textureMapPath: assetsPublicPath + 'texture-map.obj',
                 trackerConfigPath: assetsPublicPath + 'configs/HeadTracker.cfg'
@@ -124,6 +127,7 @@
         });
     } catch (e) {
         log(e.message, e.stack);
+        throw e;
     }
 
     var toggleFullScreen = function () {

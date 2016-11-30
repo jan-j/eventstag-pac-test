@@ -56,7 +56,7 @@
     <button class="button logToggle" onclick="logToggle();">Log</button>
 </div>
 
-<textarea id="log" rows="10"></textarea>
+<!--<textarea id="log" rows="10"></textarea>-->
 
 <div class="photo-booth" id="photo-booth">
     <div class="photo-booth__inner-wrapper photo-booth__inner-wrapper--preloader">
@@ -86,35 +86,35 @@
     // suppress alerts
     window.alert = function () {};
 
-    var logTextarea = document.getElementById('log');
-
-    var logToggle = function () {
-        logTextarea.classList.toggle('hidden');
-    };
-
-
-    window.log = function () {
-        var appendLine = function (string) {
-            if (typeof string === 'object') {
-                string = JSON.stringify(string);
-            }
-
-            logTextarea.value += (logTextarea.value ? "\n" : '') + '@@@@' + string;
-        };
-
-        var args = Array.prototype.slice.call(arguments);
-
-        args.forEach(function (s) {
-            appendLine(s);
-        });
-    };
-
-    console.log = console.warn = console.debug = console.error = log;
-
-    window.onerror = function(message, url, lineNumber) {
-        log(message, url, lineNumber);
-        return true;
-    };
+//    var logTextarea = document.getElementById('log');
+//
+//    var logToggle = function () {
+//        logTextarea.classList.toggle('hidden');
+//    };
+//
+//
+//    window.log = function () {
+//        var appendLine = function (string) {
+//            if (typeof string === 'object') {
+//                string = JSON.stringify(string);
+//            }
+//
+//            logTextarea.value += (logTextarea.value ? "\n" : '') + '@@@@' + string;
+//        };
+//
+//        var args = Array.prototype.slice.call(arguments);
+//
+//        args.forEach(function (s) {
+//            appendLine(s);
+//        });
+//    };
+//
+//    console.log = console.warn = console.debug = console.error = log;
+//
+//    window.onerror = function(message, url, lineNumber) {
+//        log(message, url, lineNumber);
+//        return true;
+//    };
 
     try {
         var photoBoothClass = 'Pac12PhotoBooth';
@@ -132,10 +132,12 @@
                 },
                 textureMapPath: assetsPublicPath + 'texture-map.obj',
                 trackerConfigPath: assetsPublicPath + 'configs/HeadTracker.cfg'
-            }
+            },
+            webcamWidth: 1280,
+            webcamHeight: 720
         });
     } catch (e) {
-        log(e.message, e.stack);
+//        log(e.message, e.stack);
         throw e;
     }
 
